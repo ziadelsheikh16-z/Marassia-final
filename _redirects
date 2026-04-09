@@ -1,0 +1,5 @@
+/product/*        /index.html    200
+/store/category/* /index.html    200
+/store            /index.html    200
+/medical          /index.html    200
+/*                /index.html    200

@@ -1,0 +1,1631 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MARASSiA — لوحة التحكم</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+
+<style>
+/* ═══ Admin Page Variables ═══════════════════════════ */
+:root{
+  --ab:#0a0c14; --as:#111320; --ac:#161928;
+  --ab2:rgba(255,255,255,.06); --abo:rgba(255,255,255,.07);
+  --abl:#3d7aff; --ag:#d4af37; --at:#e8eeff; --am:#6b7a99;
+  --agr:#22c55e; --ard:#ef4444;
+}
+html,body{margin:0;padding:0;background:var(--ab);color:var(--at);font-family:'Cairo',sans-serif;min-height:100vh;}
+
+/* ─── Auth Gate ─────────────────────────────────────── */
+#adm-auth{
+  position:fixed;inset:0;z-index:9000;
+  background:linear-gradient(135deg,#06080e,#0c1230,#06080e);
+  display:flex;align-items:center;justify-content:center;
+}
+.auth-wrap{
+  width:min(420px,92vw);padding:40px 36px;
+  background:rgba(16,20,44,.96);
+  border:1px solid rgba(212,175,55,.18);
+  border-radius:24px;
+  box-shadow:0 24px 70px rgba(0,0,0,.55);
+}
+.auth-brand{text-align:center;margin-bottom:28px;}
+.auth-brand-name{
+  font-size:1.8rem;font-weight:900;letter-spacing:.18em;
+  background:linear-gradient(90deg,#3d7aff,#8ab4ff,#3d7aff);
+  background-size:250% auto;-webkit-background-clip:text;
+  background-clip:text;color:transparent;
+  animation:shine 3s linear infinite;
+}
+.auth-brand-sub{font-size:.62rem;letter-spacing:.28em;color:rgba(212,175,55,.55);margin-top:4px;}
+@keyframes shine{0%{background-position:0%}100%{background-position:250%}}
+.auth-err{
+  background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.22);
+  border-radius:10px;padding:9px 13px;font-size:.8rem;color:#fca5a5;
+  margin-bottom:14px;display:none;
+}
+.auth-lbl{font-size:.7rem;color:var(--am);display:block;margin-bottom:5px;}
+.auth-inp{
+  width:100%;padding:11px 14px;border-radius:11px;
+  background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.1);
+  color:var(--at);font-family:'Cairo',sans-serif;font-size:.88rem;
+  transition:.2s;margin-bottom:12px;box-sizing:border-box;
+}
+.auth-inp:focus{outline:none;border-color:var(--abl);background:rgba(61,122,255,.07);}
+.auth-btn{
+  width:100%;padding:13px;border-radius:12px;border:none;
+  background:linear-gradient(135deg,#1a4fff,#3d7aff);
+  color:#fff;font-family:'Cairo',sans-serif;font-size:.9rem;font-weight:800;
+  cursor:pointer;transition:.2s;margin-bottom:10px;
+  box-shadow:0 8px 22px rgba(61,122,255,.32);
+}
+.auth-btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 12px 28px rgba(61,122,255,.42);}
+.auth-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+.auth-btn-bio{
+  width:100%;padding:10px;border-radius:10px;border:1.5px solid rgba(255,255,255,.1);
+  background:transparent;color:rgba(255,255,255,.45);
+  font-family:'Cairo',sans-serif;font-size:.81rem;cursor:pointer;transition:.2s;
+}
+.auth-btn-bio:hover{border-color:var(--ag);color:var(--ag);}
+.auth-link{display:block;text-align:center;margin-top:16px;font-size:.73rem;color:var(--am);text-decoration:none;}
+.auth-link:hover{color:var(--at);}
+
+/* ─── Dashboard Shell ───────────────────────────────── */
+#adm-dash{display:none;min-height:100vh;flex-direction:row;}
+#adm-dash.show{display:flex;}
+
+/* ─── Sidebar ───────────────────────────────────────── */
+#adm-sb{
+  width:256px;min-height:100vh;background:var(--as);
+  border-left:1px solid var(--abo);display:flex;flex-direction:column;
+  position:sticky;top:0;height:100vh;overflow-y:auto;
+  flex-shrink:0;transition:.3s;z-index:50;
+}
+.sb-logo{padding:20px 16px 14px;border-bottom:1px solid var(--abo);}
+.sb-logo-nm{
+  font-size:1.2rem;font-weight:900;letter-spacing:.12em;
+  background:linear-gradient(90deg,#3d7aff,#8ab4ff,#3d7aff);
+  background-size:250% auto;-webkit-background-clip:text;
+  background-clip:text;color:transparent;animation:shine 3s linear infinite;
+}
+.sb-logo-sub{font-size:.57rem;letter-spacing:.2em;color:rgba(212,175,55,.5);margin-top:2px;}
+.sb-nav{flex:1;padding:12px 0;overflow-y:auto;}
+.sb-grp{padding:6px 0;}
+.sb-grp-lbl{
+  font-size:.56rem;letter-spacing:.18em;color:var(--am);
+  text-transform:uppercase;padding:6px 18px 3px;
+}
+.sb-btn{
+  display:flex;align-items:center;gap:9px;width:100%;
+  padding:9px 16px;border:none;background:none;cursor:pointer;
+  font-size:.82rem;color:var(--am);font-weight:700;
+  font-family:'Cairo',sans-serif;text-align:right;transition:.15s;
+}
+.sb-btn:hover{background:rgba(61,122,255,.08);color:var(--at);}
+.sb-btn.on{
+  background:linear-gradient(90deg,rgba(61,122,255,.16),transparent);
+  color:#7ab0ff;border-right:2.5px solid var(--abl);
+}
+.sb-btn .ic{width:24px;text-align:center;font-size:.8rem;flex-shrink:0;}
+.sb-badge{
+  margin-right:auto;min-width:17px;height:17px;border-radius:9px;
+  background:var(--abl);color:#fff;font-size:.58rem;
+  display:flex;align-items:center;justify-content:center;padding:0 5px;
+}
+.sb-footer{padding:12px 14px;border-top:1px solid var(--abo);}
+.sb-user{background:rgba(61,122,255,.07);border:1px solid rgba(61,122,255,.1);border-radius:11px;padding:10px 12px;}
+.sb-email{font-size:.69rem;color:var(--am);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:7px;}
+.sb-logout{
+  width:100%;padding:7px;border-radius:8px;border:none;
+  background:rgba(239,68,68,.1);color:#fca5a5;
+  font-family:'Cairo',sans-serif;font-size:.76rem;cursor:pointer;transition:.2s;
+}
+.sb-logout:hover{background:rgba(239,68,68,.2);}
+
+/* ─── Main ──────────────────────────────────────────── */
+#adm-main{flex:1;min-height:100vh;background:var(--ab);overflow-x:hidden;}
+
+/* ─── Topbar ────────────────────────────────────────── */
+#adm-top{
+  background:var(--as);border-bottom:1px solid var(--abo);
+  padding:11px 20px;display:flex;align-items:center;gap:11px;
+  position:sticky;top:0;z-index:40;
+}
+#adm-top .toggle-sb{display:none;background:none;border:none;color:var(--at);font-size:1rem;cursor:pointer;}
+.top-title{font-size:.94rem;font-weight:800;color:var(--at);}
+.top-sub{font-size:.68rem;color:var(--am);}
+.fb-dot{
+  width:8px;height:8px;border-radius:50%;background:#f59e0b;
+  margin-right:auto;transition:.4s;cursor:default;
+  box-shadow:0 0 0 2px rgba(245,158,11,.2);
+}
+.fb-dot.live{background:var(--agr);box-shadow:0 0 0 2px rgba(34,197,94,.2);}
+.top-store-link{
+  color:var(--am);font-size:.74rem;text-decoration:none;
+  display:flex;align-items:center;gap:5px;transition:.2s;
+}
+.top-store-link:hover{color:var(--at);}
+
+/* ─── Content ───────────────────────────────────────── */
+#adm-body{padding:20px;}
+
+/* ─── Sync Button ───────────────────────────────────── */
+.adm-sync{
+  display:inline-flex;align-items:center;gap:7px;padding:8px 16px;
+  border-radius:9px;border:none;cursor:pointer;font-weight:800;
+  background:linear-gradient(135deg,#d97706,#f59e0b);
+  color:#0a0800;font-family:'Cairo',sans-serif;font-size:.78rem;
+  margin-bottom:16px;transition:.2s;
+}
+.adm-sync:hover{transform:translateY(-1px);box-shadow:0 5px 16px rgba(245,158,11,.28);}
+
+/* ─── Stats Row ─────────────────────────────────────── */
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:13px;margin-bottom:20px;}
+.stat{
+  background:var(--ac);border:1px solid var(--abo);
+  border-radius:13px;padding:16px;transition:.2s;
+}
+.stat:hover{border-color:rgba(61,122,255,.2);transform:translateY(-2px);}
+.stat-ic{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.85rem;margin-bottom:9px;}
+.stat-n{font-size:1.6rem;font-weight:900;color:var(--at);}
+.stat-l{font-size:.7rem;color:var(--am);margin-top:1px;}
+
+/* ─── Sections ──────────────────────────────────────── */
+.adm-pg{display:none;}
+.adm-pg.show{display:block;}
+
+/* ─── Section title override ────────────────────────── */
+.admin-section{padding:20px!important;}
+.section-title{color:var(--at)!important;font-size:.9rem!important;margin-bottom:16px!important;border-bottom:1px solid var(--abo)!important;padding-bottom:11px!important;}
+.form-control{background:rgba(255,255,255,.05)!important;border:1.5px solid rgba(255,255,255,.1)!important;color:var(--at)!important;border-radius:10px!important;}
+.form-control:focus{border-color:var(--abl)!important;outline:none!important;}
+.btn-save{background:linear-gradient(135deg,#1a4fff,#3d7aff)!important;color:#fff!important;border:none!important;border-radius:10px!important;padding:10px 20px!important;cursor:pointer!important;font-family:'Cairo',sans-serif!important;font-weight:800!important;}
+.btn-del{background:rgba(239,68,68,.12)!important;color:#fca5a5!important;border:1px solid rgba(239,68,68,.2)!important;border-radius:8px!important;padding:5px 10px!important;cursor:pointer!important;}
+.admin-section table{width:100%;border-collapse:collapse;font-size:.82rem;}
+.admin-section th{background:rgba(255,255,255,.04);color:var(--am);padding:8px 10px;text-align:right;border-bottom:1px solid var(--abo);}
+.admin-section td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.04);color:var(--at);}
+.admin-section tr:hover td{background:rgba(61,122,255,.04);}
+.admin-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+label{color:var(--am)!important;font-size:.74rem!important;}
+.pay-record{background:var(--ac)!important;border:1px solid var(--abo)!important;border-radius:11px!important;}
+.card{background:var(--ac)!important;border:1px solid var(--abo)!important;border-radius:12px!important;}
+.admin-tab{background:var(--ac)!important;color:var(--am)!important;border:1px solid var(--abo)!important;font-family:'Cairo',sans-serif!important;}
+.admin-tab.active{background:var(--abl)!important;color:#fff!important;}
+select option{background:#1a1d2e;}
+
+/* ─── Mobile ────────────────────────────────────────── */
+@media(max-width:768px){
+  #adm-sb{position:fixed;right:0;top:0;bottom:0;transform:translateX(100%);z-index:200;}
+  #adm-sb.open{transform:translateX(0);}
+  #adm-main{width:100%;}
+  #adm-top .toggle-sb{display:block;}
+  .stats{grid-template-columns:1fr 1fr;}
+  .admin-grid-2{grid-template-columns:1fr;}
+  #sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:199;}
+  #sb-overlay.show{display:block;}
+}
+    /* ─── Extra admin form styles ──────────────────────── */
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; margin-bottom: 5px; }
+    .admin-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .admin-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    .prod-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--abo); }
+    .prod-thumb { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; background: var(--ab2); flex-shrink: 0; }
+    .prod-name { flex: 1; font-size: .83rem; font-weight: 700; color: var(--at); }
+    .prod-price { font-size: .78rem; color: var(--am); }
+    .order-card { background: var(--ac); border: 1px solid var(--abo); border-radius: 11px; padding: 14px; margin-bottom: 10px; }
+    .order-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .order-id { font-size: .75rem; font-weight: 900; color: var(--abl); }
+    .order-status { font-size: .7rem; padding: 3px 9px; border-radius: 20px; font-weight: 700; }
+    .status-pending  { background: rgba(245,158,11,.15); color: #f59e0b; }
+    .status-confirmed{ background: rgba(61,122,255,.15); color: #7ab0ff; }
+    .status-shipped  { background: rgba(139,92,246,.15); color: #a78bfa; }
+    .status-delivered{ background: rgba(34,197,94,.15); color: #22c55e; }
+    .status-cancelled{ background: rgba(239,68,68,.15); color: #fca5a5; }
+    .review-item { padding: 10px 0; border-bottom: 1px solid var(--abo); }
+    .ai-msg { padding: 10px 14px; border-radius: 11px; margin-bottom: 8px; font-size: .84rem; line-height: 1.6; }
+    .ai-msg.user { background: rgba(61,122,255,.12); margin-right: 20%; }
+    .ai-msg.ai   { background: var(--ac); margin-left: 20%; }
+    .ai-typing   { color: var(--am); font-size: .78rem; padding: 6px 12px; }
+    .badge-pill  { display: inline-block; padding: 2px 9px; border-radius: 20px; font-size: .68rem; font-weight: 800; }
+    #upload-progress-bar { height: 4px; background: var(--abl); border-radius: 2px; transition: width .3s; }
+    @media(max-width:768px){.admin-grid-2,.admin-grid-3{grid-template-columns:1fr;}}
+
+    /* ════════════════════════════════════════════════════
+       CRITICAL OVERRIDES — Must override style.css rules
+       style.css has .admin-section{display:none} which
+       breaks all admin sections in the new dashboard
+    ════════════════════════════════════════════════════ */
+    #adm-dash .admin-section,
+    #adm-dash .admin-section.active,
+    #adm-dash .admin-body .admin-section,
+    .adm-pg .admin-section {
+        display: block !important;
+        animation: none !important;
+    }
+    #adm-dash .admin-overlay {
+        position: relative !important;
+        inset: unset !important;
+        background: transparent !important;
+        z-index: auto !important;
+        display: block !important;
+        padding: 0 !important;
+    }
+    #adm-dash .admin-container {
+        background: transparent !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+    }
+    #adm-dash .admin-body {
+        background: transparent !important;
+        padding: 0 !important;
+    }
+    #adm-dash .admin-header {
+        display: none !important;
+    }
+    #adm-dash .admin-tabs {
+        background: var(--ac, #161928) !important;
+        border-bottom: 1px solid var(--abo, rgba(255,255,255,.07)) !important;
+    }
+    #adm-dash .admin-tab {
+        background: transparent !important;
+        color: var(--am, #6b7a99) !important;
+        border: none !important;
+    }
+    #adm-dash .admin-tab.active {
+        background: var(--abl, #3d7aff) !important;
+        color: #fff !important;
+    }
+    #adm-dash .admin-close-top {
+        display: none !important;
+    }
+
+    /* ════════════════════════════════════════
+       UI IMPROVEMENTS — Better typography & spacing
+    ════════════════════════════════════════ */
+    #adm-dash { font-size: 15px; }
+    
+    /* Section headings */
+    #adm-dash .section-title {
+        font-size: 1.05rem !important;
+        font-weight: 900 !important;
+        color: var(--at) !important;
+        padding: 18px 20px 14px !important;
+        margin: 0 !important;
+        border-bottom: 1px solid var(--abo) !important;
+        background: rgba(255,255,255,.02);
+        display: flex; align-items: center; gap: 9px;
+    }
+    
+    /* Form groups spacing */
+    #adm-dash .form-group {
+        margin-bottom: 16px;
+    }
+    #adm-dash label {
+        font-size: .78rem !important;
+        font-weight: 700 !important;
+        color: var(--am) !important;
+        display: block;
+        margin-bottom: 6px;
+    }
+    #adm-dash .form-control {
+        background: rgba(255,255,255,.04) !important;
+        border: 1.5px solid rgba(255,255,255,.1) !important;
+        color: var(--at) !important;
+        border-radius: 10px !important;
+        padding: 10px 13px !important;
+        font-size: .87rem !important;
+        font-family: 'Cairo', sans-serif !important;
+        width: 100%;
+        transition: border-color .2s;
+    }
+    #adm-dash .form-control:focus {
+        outline: none !important;
+        border-color: var(--abl) !important;
+        background: rgba(61,122,255,.06) !important;
+    }
+    
+    /* Section wrapper padding */
+    #adm-dash .admin-section {
+        padding: 20px 22px !important;
+    }
+    
+    /* Tables */
+    #adm-dash table {
+        width: 100%; border-collapse: collapse; font-size: .84rem;
+    }
+    #adm-dash th {
+        background: rgba(255,255,255,.04);
+        color: var(--am) !important;
+        padding: 10px 12px;
+        text-align: right;
+        font-weight: 700;
+        font-size: .77rem;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+        border-bottom: 1px solid var(--abo);
+    }
+    #adm-dash td {
+        padding: 10px 12px;
+        border-bottom: 1px solid rgba(255,255,255,.04);
+        color: var(--at) !important;
+        vertical-align: middle;
+    }
+    #adm-dash tr:hover td { background: rgba(61,122,255,.04); }
+    
+    /* Save button */
+    #adm-dash .btn-save {
+        background: linear-gradient(135deg, #1a4fff, #3d7aff) !important;
+        color: #fff !important;
+        border: none !important;
+        border-radius: 11px !important;
+        padding: 11px 24px !important;
+        font-size: .88rem !important;
+        font-weight: 800 !important;
+        cursor: pointer !important;
+        font-family: 'Cairo', sans-serif !important;
+        transition: .2s;
+        box-shadow: 0 4px 14px rgba(61,122,255,.3);
+    }
+    #adm-dash .btn-save:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(61,122,255,.4); }
+    
+    /* Delete button */
+    #adm-dash .btn-del {
+        background: rgba(239,68,68,.1) !important;
+        color: #fca5a5 !important;
+        border: 1px solid rgba(239,68,68,.2) !important;
+        border-radius: 8px !important;
+        padding: 5px 11px !important;
+        font-size: .78rem !important;
+        cursor: pointer !important;
+        font-family: 'Cairo', sans-serif !important;
+        transition: .15s;
+    }
+    #adm-dash .btn-del:hover { background: rgba(239,68,68,.2) !important; }
+    
+    /* Grid improvements */
+    #adm-dash .admin-grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+    }
+    #adm-dash .admin-grid-3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 14px;
+    }
+    
+    /* Product rows */
+    #adm-dash .prod-row {
+        display: flex; align-items: center; gap: 11px;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(255,255,255,.05);
+    }
+    #adm-dash .prod-thumb {
+        width: 48px; height: 48px; border-radius: 9px;
+        object-fit: cover; background: rgba(255,255,255,.06);
+        flex-shrink: 0;
+    }
+    #adm-dash .prod-name { flex: 1; font-size: .86rem; font-weight: 700; color: var(--at); }
+    #adm-dash .prod-price { font-size: .8rem; color: var(--am); }
+    
+    /* Select elements */
+    #adm-dash select.form-control {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7a99' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: left 12px center;
+    }
+    #adm-dash select option { background: #161928; }
+    
+    /* Upload progress */
+    #adm-dash #p-upload-progress, #adm-dash #b-upload-progress {
+        background: rgba(61,122,255,.1);
+        border: 1px solid rgba(61,122,255,.2);
+        border-radius: 8px;
+        padding: 8px 12px;
+        font-size: .78rem;
+        color: #7ab0ff;
+        margin-top: 6px;
+    }
+    
+    /* AI chat messages */
+    #adm-dash .ai-msg {
+        padding: 12px 16px;
+        border-radius: 12px;
+        margin-bottom: 9px;
+        font-size: .86rem;
+        line-height: 1.65;
+    }
+    #adm-dash .ai-msg.user { background: rgba(61,122,255,.1); margin-right: 16px; }
+    #adm-dash .ai-msg.ai   { background: var(--ac); margin-left: 16px; }
+    
+    /* Textarea */
+    #adm-dash textarea.form-control { resize: vertical; min-height: 90px; }
+    
+    /* Order cards */
+    #adm-dash .order-card {
+        background: var(--ac);
+        border: 1px solid var(--abo);
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 11px;
+    }
+    
+    /* Pay record */
+    #adm-dash .pay-record {
+        background: var(--ac) !important;
+        border: 1px solid var(--abo) !important;
+        border-radius: 12px !important;
+        padding: 16px !important;
+        margin-bottom: 10px !important;
+    }
+    
+    /* Mobile */
+    @media(max-width:640px) {
+        #adm-dash .admin-grid-2,
+        #adm-dash .admin-grid-3 { grid-template-columns: 1fr; }
+        #adm-dash .admin-section { padding: 14px 14px !important; }
+    }
+
+    /* Category groups in admin */
+    #p-cat optgroup { background: var(--adm-card,#161928); color: var(--adm-muted,#6b7a99); font-size:.72rem; }
+    #p-cat option   { background: var(--adm-bg,#0a0c14); color: var(--at,#e8eeff); }
+    .cat-quick-add  { display:flex; gap:8px; margin-top:6px; }
+    .cat-quick-add input { flex:1; }
+    .cat-quick-add button { padding:8px 14px; border-radius:9px; border:none; background:linear-gradient(135deg,#1a4fff,#3d7aff); color:#fff; cursor:pointer; font-family:Cairo,sans-serif; font-size:.78rem; font-weight:800; white-space:nowrap; }
+
+
+    /* ── Force admin sections visible ── */
+    #adm-dash .adm-pg { display: none; }
+    #adm-dash .adm-pg.show { display: block; }
+    #adm-dash .adm-pg.show .admin-section { display: block !important; }
+    .adm-pg.show .admin-section { display: block !important; }
+</style>
+</head>
+<body>
+
+<!-- ════ AUTH GATE ════════════════════════════════════ -->
+<div id="adm-auth">
+  <div class="auth-wrap">
+    <div class="auth-brand">
+      <div class="auth-brand-name">MARASSiA</div>
+      <div class="auth-brand-sub">Admin Dashboard</div>
+    </div>
+    <div id="auth-err" class="auth-err"></div>
+    <label class="auth-lbl" for="adm-email">البريد الإلكتروني</label>
+    <input type="email" id="adm-email" class="auth-inp" value="" autocomplete="username"
+      onkeydown="if(event.key==='Enter')document.getElementById('adm-pass').focus()">
+    <label class="auth-lbl" for="adm-pass">كلمة المرور</label>
+    <input type="password" id="adm-pass" class="auth-inp" placeholder="••••••••"
+      onkeydown="if(event.key==='Enter')admSignIn()">
+    <button class="auth-btn" id="sign-btn" onclick="admSignIn()">
+      <i class="fas fa-sign-in-alt"></i>&nbsp; دخول لوحة التحكم
+    </button>
+    <button class="auth-btn-bio" id="bio-btn" style="display:none" onclick="admBioSignIn()">
+      <i class="fas fa-fingerprint"></i>&nbsp; دخول بالبصمة
+    </button>
+    <a href="/" class="auth-link">← العودة للمتجر</a>
+  </div>
+</div>
+
+<!-- Mobile sidebar overlay -->
+<div id="sb-overlay" onclick="closeSb()"></div>
+
+<!-- ════ DASHBOARD ════════════════════════════════════ -->
+<div id="adm-dash">
+
+  <!-- SIDEBAR -->
+  <aside id="adm-sb">
+    <div class="sb-logo">
+      <div class="sb-logo-nm">MARASSiA</div>
+      <div class="sb-logo-sub">Admin Panel</div>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-grp">
+        <div class="sb-grp-lbl">عام</div>
+        <button class="sb-btn on" data-sec="home" onclick="goSec('home',this)">
+          <span class="ic"><i class="fas fa-chart-line"></i></span>نظرة عامة
+        </button>
+      </div>
+      <div class="sb-grp">
+        <div class="sb-grp-lbl">المتجر</div>
+        <button class="sb-btn" data-sec="prod" onclick="goSec('prod',this)">
+          <span class="ic"><i class="fas fa-box-open"></i></span>المنتجات
+          <span class="sb-badge" id="nb-p">0</span>
+        </button>
+        <button class="sb-btn" data-sec="cat" onclick="goSec('cat',this)">
+          <span class="ic"><i class="fas fa-tags"></i></span>الأقسام
+        </button>
+        <button class="sb-btn" data-sec="orders" onclick="goSec('orders',this)">
+          <span class="ic"><i class="fas fa-receipt"></i></span>الطلبات
+          <span class="sb-badge" id="nb-o">0</span>
+        </button>
+      </div>
+      <div class="sb-grp">
+        <div class="sb-grp-lbl">المحتوى</div>
+        <button class="sb-btn" data-sec="blog" onclick="goSec('blog',this)">
+          <span class="ic"><i class="fas fa-newspaper"></i></span>المدونة
+        </button>
+        <button class="sb-btn" data-sec="hero" onclick="goSec('hero',this)">
+          <span class="ic"><i class="fas fa-image"></i></span>Hero Banner
+        </button>
+        <button class="sb-btn" data-sec="channel" onclick="goSec('channel',this)">
+          <span class="ic"><i class="fab fa-youtube" style="color:#e00"></i></span>Channel
+        </button>
+      </div>
+      <div class="sb-grp">
+        <div class="sb-grp-lbl">المجتمع</div>
+        <button class="sb-btn" data-sec="users" onclick="goSec('users',this)">
+          <span class="ic"><i class="fas fa-users"></i></span>المستخدمون
+        </button>
+        <button class="sb-btn" data-sec="revs" onclick="goSec('revs',this)">
+          <span class="ic"><i class="fas fa-star"></i></span>التقييمات
+        </button>
+        <button class="sb-btn" data-sec="about" onclick="goSec('about',this)">
+          <span class="ic"><i class="fas fa-pen-nib"></i></span>الصفحات
+        </button>
+      </div>
+      <div class="sb-grp">
+        <div class="sb-grp-lbl">النظام</div>
+        <button class="sb-btn" data-sec="social" onclick="goSec('social',this)">
+          <span class="ic"><i class="fas fa-share-alt"></i></span>السوشيال
+        </button>
+        <button class="sb-btn" data-sec="links" onclick="goSec('links',this)">
+          <span class="ic"><i class="fas fa-bars"></i></span>القائمة
+        </button>
+        <button class="sb-btn" data-sec="ai" onclick="goSec('ai',this)">
+          <span class="ic"><i class="fas fa-robot" style="color:var(--ag)"></i></span>AI & API
+        </button>
+        <button class="sb-btn" data-sec="medical" onclick="goSec('medical',this)">
+          <span class="ic"><i class="fas fa-heartbeat" style="color:#ef4444;"></i></span>الطب
+        </button>
+        <button class="sb-btn" data-sec="crossroads" onclick="goSec('crossroads',this)">
+          <span class="ic"><i class="fas fa-th-large"></i></span>الوجهات
+        </button>
+        <button class="sb-btn" data-sec="set" onclick="goSec('set',this)">
+          <span class="ic"><i class="fas fa-cog"></i></span>الإعدادات
+        </button>
+      </div>
+    </nav>
+    <div class="sb-footer">
+      <div class="sb-user">
+        <div class="sb-email" id="sb-email">—</div>
+        <button class="sb-logout" onclick="admSignOut()">
+          <i class="fas fa-sign-out-alt"></i>&nbsp; تسجيل خروج
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div id="adm-main">
+    <!-- Topbar -->
+    <div id="adm-top">
+      <button class="toggle-sb" onclick="toggleSb()"><i class="fas fa-bars"></i></button>
+      <div>
+        <div class="top-title" id="top-title">نظرة عامة</div>
+        <div class="top-sub" id="top-sub">Dashboard Overview</div>
+      </div>
+      <div class="fb-dot" id="fb-dot" title="Firebase Status"></div>
+      <a href="/" class="top-store-link"><i class="fas fa-store"></i> المتجر</a>
+    </div>
+
+    <!-- Body -->
+    <div id="adm-body">
+
+      <!-- Sync button always visible -->
+      <button class="adm-sync" onclick="forceSyncToFirebase()">
+        <i class="fas fa-cloud-upload-alt"></i>&nbsp; مزامنة كل البيانات مع Firebase
+      </button>
+
+      <!-- ── HOME / OVERVIEW ──────────────────────── -->
+      <div id="pg-home" class="adm-pg show">
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-ic" style="background:rgba(61,122,255,.14);color:#7ab0ff"><i class="fas fa-box-open"></i></div>
+            <div class="stat-n" id="st-p">0</div>
+            <div class="stat-l">منتج</div>
+          </div>
+          <div class="stat">
+            <div class="stat-ic" style="background:rgba(34,197,94,.14);color:#22c55e"><i class="fas fa-receipt"></i></div>
+            <div class="stat-n" id="st-o">0</div>
+            <div class="stat-l">طلب</div>
+          </div>
+          <div class="stat">
+            <div class="stat-ic" style="background:rgba(212,175,55,.14);color:var(--ag)"><i class="fas fa-users"></i></div>
+            <div class="stat-n" id="st-u">—</div>
+            <div class="stat-l">مستخدم</div>
+          </div>
+          <div class="stat">
+            <div class="stat-ic" style="background:rgba(139,92,246,.14);color:#a78bfa"><i class="fas fa-star"></i></div>
+            <div class="stat-n" id="st-r">0</div>
+            <div class="stat-l">تقييم</div>
+          </div>
+        </div>
+        <div style="background:var(--ac);border:1px solid var(--abo);border-radius:13px;padding:18px;margin-bottom:16px;">
+          <div style="font-size:.88rem;font-weight:800;margin-bottom:12px;"><i class="fas fa-info-circle" style="color:var(--abl);margin-left:7px;"></i>حالة النظام</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;font-size:.8rem;color:var(--am);">
+            <div>🔥 Firebase: <strong id="ov-fb" style="color:#f59e0b">جارٍ...</strong></div>
+            <div>🏷️ أقسام: <strong id="ov-c" style="color:var(--at)">0</strong></div>
+            <div>📰 مقالات: <strong id="ov-b" style="color:var(--at)">0</strong></div>
+            <div>🔐 بصمة: <strong id="ov-bio" style="color:var(--am)">غير مسجّلة</strong></div>
+          </div>
+          <div style="margin-top:13px;padding-top:13px;border-top:1px solid var(--abo);display:flex;gap:9px;flex-wrap:wrap;">
+            <button onclick="forceSyncToFirebase()" style="background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.25);color:#f59e0b;border-radius:9px;padding:9px 16px;cursor:pointer;font-family:'Cairo',sans-serif;font-size:.8rem;font-weight:800;">
+              <i class="fas fa-cloud-upload-alt"></i>&nbsp; ارفع البيانات لـ Firebase
+            </button>
+            <button onclick="_safeAdminInit()" style="background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);color:#22c55e;border-radius:9px;padding:9px 16px;cursor:pointer;font-family:'Cairo',sans-serif;font-size:.8rem;font-weight:800;">
+              <i class="fas fa-sync-alt"></i>&nbsp; تحديث لوحة التحكم
+            </button>
+            <button onclick="admRegisterBio()" style="background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.18);color:var(--ag);border-radius:9px;padding:8px 14px;cursor:pointer;font-family:'Cairo',sans-serif;font-size:.77rem;">
+              <i class="fas fa-fingerprint"></i>&nbsp; تسجيل بصمة
+            </button>
+            <button onclick="loadRegisteredUsers();goSec('users',document.querySelector('[data-sec=users]'))" style="background:rgba(61,122,255,.1);border:1px solid rgba(61,122,255,.18);color:#7ab0ff;border-radius:9px;padding:8px 14px;cursor:pointer;font-family:'Cairo',sans-serif;font-size:.77rem;">
+              <i class="fas fa-users"></i>&nbsp; المستخدمون
+            </button>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ── PROD ──────────────────────── -->
+      <div id="pg-prod" class="adm-pg">
+        <div id="admin-prod" class="admin-section">
+                <h3 class="section-title"><i class="fas fa-plus-circle"></i> إضافة منتج جديد</h3>
+                <form onsubmit="saveProduct(event)">
+                    <div class="admin-grid-2">
+                        <div class="form-group">
+                            <label>اسم المنتج</label>
+                            <input type="text" id="p-name" class="form-control" required placeholder="مثال: هاتف ذكي فاخر">
+                        </div>
+                        <div class="form-group">
+                            <label>السعر (ج.م)</label>
+                            <input type="number" id="p-price" class="form-control" required placeholder="مثال: 5000" min="0">
+                        </div>
+                    </div>
+                    <div class="admin-grid-2">
+                        <div class="form-group">
+                            <label>القسم</label>
+                            <select id="p-cat" class="form-control" required></select>
+                        </div>
+                        <div class="form-group">
+                    <label>📁 رفع صورة ☁️ Cloudinary</label>
+                    <input type="file" id="p-media-file" class="form-control" accept="image/*,video/*" capture="environment"
+                        style="padding:5px;" onchange="handleProductImageUpload(this,'p-media','p-upload-progress')">
+                    <div id="p-upload-progress" style="display:none;font-size:.75rem;color:var(--abl,#3d7aff);margin-top:4px;padding:6px;background:rgba(61,122,255,.08);border-radius:8px;">
+                        <i class="fas fa-cloud-upload-alt"></i> جارٍ الرفع... <span id="p-upload-pct">0%</span>
+                    </div>
+                    <img id="p-img-preview" src="" alt="" style="display:none;width:80px;height:60px;object-fit:cover;border-radius:8px;margin-top:6px;border:2px solid rgba(61,122,255,.3);">
+                    <input type="hidden" id="p-media" value="">
+                    <p style="font-size:.7rem;color:var(--adm-muted,#6b7a99);margin-top:4px;">الصورة / الفيديو الرئيسي</p>
+                </div>
+                <!-- ── Extra Images ── -->
+                <div class="form-group">
+                    <label>🖼️ صور إضافية (حتى 5 صور)</label>
+                    <div id="extra-images-list" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;"></div>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <input type="text" id="extra-img-url" class="form-control" placeholder="رابط صورة إضافية" style="flex:1;" dir="ltr">
+                        <button type="button" onclick="addExtraImage()" class="btn-save" style="padding:9px 14px;white-space:nowrap;">+ إضافة</button>
+                    </div>
+                    <p style="font-size:.7rem;color:var(--adm-muted,#6b7a99);margin-top:4px;">أو ارفع من جهازك:</p>
+                    <input type="file" id="extra-img-file" class="form-control" accept="image/*" style="padding:5px;"
+                        onchange="handleExtraImageUpload(this)">
+                </div>
+                <!-- ── Extra Videos ── -->
+                <div class="form-group">
+                    <label>🎬 فيديوهات إضافية (حتى 3 فيديوهات)</label>
+                    <div id="extra-videos-list" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;"></div>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <input type="text" id="extra-vid-url" class="form-control" placeholder="رابط فيديو (يوتيوب أو مباشر)" style="flex:1;" dir="ltr">
+                        <button type="button" onclick="addExtraVideo()" class="btn-save" style="padding:9px 14px;white-space:nowrap;">+ إضافة</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                        <label>وصف المنتج</label>
+                        <textarea id="p-desc" class="form-control" placeholder="وصف تفصيلي يظهر عند الضغط على المنتج..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>رابط تسويق بالعمولة (اختياري)</label>
+                        <input type="text" id="p-aff" class="form-control" placeholder="يتحول زر الشراء لرابط الوكيل عند وجوده">
+                    </div>
+                    <div style="background:rgba(61,122,255,.07);border:1.5px solid rgba(61,122,255,.18);border-radius:11px;padding:14px;margin-bottom:12px;"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;"><strong style="color:#7ab0ff;font-size:.81rem;"><i class="fas fa-search"></i>&nbsp;SEO المنتج</strong><button type="button" id="p-seo-gen-btn" onclick="generateProductSEO()" style="background:linear-gradient(135deg,#0033cc,#1a53ff);color:#fff;border:none;border-radius:8px;padding:6px 12px;cursor:pointer;font-family:Cairo,sans-serif;font-size:.73rem;font-weight:800;"><i class="fas fa-magic"></i>&nbsp;توليد تلقائي</button></div><div class="admin-grid-2"><div class="form-group"><label>Slug URL</label><input type="text" id="p-slug" class="form-control" placeholder="product-url" dir="ltr"></div><div class="form-group"><label>عنوان SEO</label><input type="text" id="p-seo-title" class="form-control" placeholder="60 حرف"></div></div><div class="form-group"><label>Meta Description</label><textarea id="p-seo-desc" class="form-control" rows="2" placeholder="155 حرف"></textarea></div><div class="form-group"><label>Keywords</label><input type="text" id="p-keywords" class="form-control" placeholder="كلمة1، كلمة2، كلمة3"></div>
+                <div class="admin-grid-2">
+                    <div class="form-group">
+                        <label><i class="fas fa-crown" style="color:#d4af37;margin-left:5px;"></i>VIP Quality</label>
+                        <div style="display:flex;align-items:center;gap:10px;padding:10px;background:rgba(212,175,55,.08);border:1.5px solid rgba(212,175,55,.2);border-radius:10px;">
+                            <input type="checkbox" id="p-vip" style="width:18px;height:18px;accent-color:#d4af37;cursor:pointer;">
+                            <label for="p-vip" style="cursor:pointer;color:var(--adm-muted,#6b7a99);font-size:.82rem;margin:0;">منتج VIP فاخر — يظهر شارة تاج ذهبي</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-chart-line" style="color:#3d7aff;margin-left:5px;"></i>مستوى الرواج (trending)</label>
+                        <input type="number" id="p-trending" class="form-control" min="0" max="100" value="0" placeholder="0-100">
+                        <p style="font-size:.68rem;color:var(--adm-muted,#6b7a99);margin-top:3px;">100 = الأعلى رواجاً، يؤثر على رحلة "الأنسب لك"</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>مستوى الجودة</label>
+                    <select id="p-quality" class="form-control" style="max-width:200px;">
+                        <option value="">— اختياري —</option>
+                        <option value="low">اقتصادي</option>
+                        <option value="mid">متوسط</option>
+                        <option value="high">عالي</option>
+                    </select>
+                </div>
+</div><button type="submit" class="btn-save"><i class="fas fa-rocket"></i> نشر المنتج في المتجر</button>
+                </form>
+                <h3 style="margin-top:30px;color:var(--dark-blue);font-size:.95rem;">المنتجات الحالية</h3>
+                <div class="data-table-wrapper"><table class="data-table" id="prod-table"></table></div>
+            </div>
+
+            <!-- Blog -->
+            
+      </div>
+
+      <!-- ── BLOG ──────────────────────── -->
+      <div id="pg-blog" class="adm-pg">
+        <div class="admin-section">
+          <h3 class="section-title"><i class="fas fa-newspaper"></i> إدارة المدونة</h3>
+
+          <div class="adm-card2" style="padding:18px;margin-bottom:18px;">
+            <div style="font-size:.82rem;font-weight:800;color:var(--at);margin-bottom:12px;"><i class="fas fa-pen" style="color:#3d7aff;margin-left:6px;"></i>نشر مقال جديد</div>
+            <form onsubmit="saveBlog(event)">
+              <div class="admin-grid-2">
+                <div class="form-group"><label class="adm-label">العنوان *</label><input type="text" id="b-title" class="form-control" required placeholder="عنوان المقال"></div>
+                <div class="form-group"><label class="adm-label">الصورة (رابط أو رفع)</label><input type="text" id="b-img" class="form-control" placeholder="https://..."></div>
+              </div>
+              <div class="form-group"><label class="adm-label">ملخص *</label><textarea id="b-summary" class="form-control" rows="2" required placeholder="ملخص قصير..."></textarea></div>
+              <div class="form-group"><label class="adm-label">المحتوى الكامل</label><textarea id="b-body" class="form-control" rows="5" placeholder="محتوى المقال..."></textarea></div>
+              <div class="form-group"><label class="adm-label">الكاتب</label><input type="text" id="b-author" class="form-control" placeholder="اسم الكاتب" value="MARASSiA Team"></div>
+              <button type="submit" class="btn-save"><i class="fas fa-paper-plane"></i> نشر المقال</button>
+            </form>
+          </div>
+
+          <h4 style="font-size:.85rem;font-weight:800;color:var(--at);margin-bottom:10px;">المقالات المنشورة</h4>
+          <div class="data-table-wrapper">
+            <table class="data-table" id="blog-table">
+              <tr><td colspan="4" style="text-align:center;padding:20px;color:var(--adm-muted);">لا توجد مقالات بعد</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+      
+      <div id="pg-hero" class="adm-pg">
+        <div class="admin-section">
+          <h3 class="section-title"><i class="fas fa-image"></i> تخصيص Hero Banner</h3>
+          <form onsubmit="saveHero(event)">
+            <div class="form-group">
+              <label class="adm-label">نوع الواجهة</label>
+              <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="radio" name="hero-type" value="text" checked> نص</label>
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="radio" name="hero-type" value="image"> صورة</label>
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="radio" name="hero-type" value="video"> فيديو</label>
+              </div>
+            </div>
+            <div class="admin-grid-2">
+              <div class="form-group"><label class="adm-label">العنوان الرئيسي</label><input type="text" id="hero-title-input" class="form-control" placeholder="مثال: عروض لا تُفوَّت!"></div>
+              <div class="form-group"><label class="adm-label">العنوان الفرعي</label><input type="text" id="hero-sub-input" class="form-control" placeholder="نص صغير أسفل العنوان"></div>
+            </div>
+            <div class="form-group"><label class="adm-label">رابط الصورة أو الفيديو</label><input type="text" id="hero-media-url" class="form-control" dir="ltr" placeholder="https://..."></div>
+            <div class="form-group"><label class="adm-label">لون الخلفية (اختياري)</label><input type="color" id="hero-bg-color" value="#001040" style="height:38px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;cursor:pointer;"></div>
+            <button type="submit" class="btn-save"><i class="fas fa-save"></i> حفظ Hero Banner</button>
+          </form>
+
+          <div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,.06);">
+            <label class="adm-label">معاينة الإعداد الحالي</label>
+            <div id="hero-preview" style="border-radius:12px;overflow:hidden;background:#001040;min-height:120px;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;">
+              <div><h3 style="color:#fff;margin:0 0 6px;font-size:1.2rem;" id="hp-title">MARASSiA</h3><p style="color:rgba(255,255,255,.6);margin:0;font-size:.8rem;" id="hp-sub">تجربة تسوق فاخرة</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div id="pg-cat" class="adm-pg">
+        <div class="admin-section">
+          <h3 class="section-title"><i class="fas fa-tags"></i> إدارة الأقسام</h3>
+
+          <div class="adm-card2" style="padding:18px;margin-bottom:16px;">
+            <div style="font-size:.82rem;font-weight:800;color:var(--at);margin-bottom:12px;"><i class="fas fa-plus-circle" style="color:#3d7aff;margin-left:6px;"></i>إضافة قسم جديد</div>
+            <form onsubmit="saveCategory(event)" style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
+              <div style="flex:1;min-width:200px;">
+                <label class="adm-label">اسم القسم</label>
+                <input type="text" id="new-cat-name" class="form-control" required placeholder="مثال: أجهزة منزلية">
+              </div>
+              <button type="submit" class="btn-save" style="padding:11px 20px;white-space:nowrap;"><i class="fas fa-plus"></i> إضافة</button>
+            </form>
+          </div>
+
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <span style="font-size:.82rem;font-weight:800;color:var(--at);">
+              <i class="fas fa-list" style="color:#d4af37;margin-left:6px;"></i>
+              الأقسام الحالية <span id="cat-count-badge" style="background:rgba(61,122,255,.15);color:#7ab0ff;font-size:.7rem;padding:2px 8px;border-radius:10px;margin-right:6px;">0</span>
+            </span>
+            <button onclick="resetCategoriesToDefault()" style="background:rgba(245,158,11,.1);color:#f59e0b;border:1px solid rgba(245,158,11,.2);border-radius:8px;padding:6px 12px;cursor:pointer;font-family:Cairo,sans-serif;font-size:.75rem;font-weight:800;">
+              <i class="fas fa-undo"></i> استعادة الافتراضيات
+            </button>
+          </div>
+          <div id="cat-cards-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:10px;"></div>
+          <table id="cat-table" style="display:none;"></table>
+        </div>
+      </div>
+      
+      <div id="pg-about" class="adm-pg">
+        <div class="admin-section">
+          <h3 class="section-title"><i class="fas fa-file-alt"></i> تحرير الصفحات</h3>
+
+          <div class="adm-card2" style="padding:18px;margin-bottom:16px;">
+            <div style="font-size:.82rem;font-weight:800;color:var(--at);margin-bottom:12px;"><i class="fas fa-info-circle" style="color:#3d7aff;margin-left:6px;"></i>من نحن</div>
+            <form onsubmit="saveAboutUs(event)">
+              <div class="form-group"><label class="adm-label">النص</label><textarea id="set-about-text" class="form-control" rows="5" placeholder="اكتب قصة متجرك هنا..."></textarea></div>
+              <button type="submit" class="btn-save"><i class="fas fa-save"></i> حفظ</button>
+            </form>
+          </div>
+
+          <div class="adm-card2" style="padding:18px;">
+            <div style="font-size:.82rem;font-weight:800;color:var(--at);margin-bottom:12px;"><i class="fas fa-file-contract" style="color:#d4af37;margin-left:6px;"></i>الصفحات القانونية</div>
+            <div class="form-group">
+              <label class="adm-label">اختر الصفحة</label>
+              <select id="legal-page-select" class="form-control" style="max-width:220px;" onchange="loadLegalPage(this.value)">
+                <option value="privacy">سياسة الخصوصية</option>
+                <option value="terms">الشروط والأحكام</option>
+                <option value="shipping">سياسة الشحن</option>
+                <option value="returns">سياسة الإرجاع</option>
+              </select>
+            </div>
+            <div class="form-group"><textarea id="legal-page-text" class="form-control" rows="6" placeholder="محتوى الصفحة القانونية..."></textarea></div>
+            <button onclick="saveLegalPage(document.getElementById('legal-page-select').value)" class="btn-save"><i class="fas fa-save"></i> حفظ الصفحة</button>
+          </div>
+        </div>
+      </div>
+      
+      <div id="pg-social" class="adm-pg">
+        <div id="admin-social" class="admin-section">
+                <h3 class="section-title"><i class="fas fa-share-alt"></i> روابط السوشيال ميديا</h3>
+                <p style="color:var(--text-gray);font-size:.9rem;margin-bottom:20px;line-height:1.7;">
+                    أضف روابط حساباتك — ستظهر كأيقونات في الشريط الجانبي. اتركها فارغة لإخفائها.
+                </p>
+                <form onsubmit="saveSocialLinks(event)">
+                    <div class="admin-grid-2">
+                        <div class="form-group">
+                            <label><i class="fab fa-facebook-f" style="color:#1877F2;background:#e8f0ff;padding:4px 7px;border-radius:6px;"></i> فيسبوك</label>
+                            <input type="url" id="set-fb" class="form-control" placeholder="https://facebook.com/...">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fab fa-youtube" style="color:#FF0000;background:#ffe8e8;padding:4px 7px;border-radius:6px;"></i> يوتيوب</label>
+                            <input type="url" id="set-yt" class="form-control" placeholder="https://youtube.com/...">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fab fa-instagram" style="color:#E4405F;background:#ffe8f0;padding:4px 7px;border-radius:6px;"></i> انستجرام</label>
+                            <input type="url" id="set-ig" class="form-control" placeholder="https://instagram.com/...">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fab fa-tiktok" style="color:#fff;background:#111;padding:4px 7px;border-radius:6px;"></i> تيك توك</label>
+                            <input type="url" id="set-tt" class="form-control" placeholder="https://tiktok.com/@...">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fab fa-pinterest-p" style="color:#E60023;background:#ffe8e8;padding:4px 7px;border-radius:6px;"></i> بينتريست</label>
+                            <input type="url" id="set-pin" class="form-control" placeholder="https://pinterest.com/...">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-save"><i class="fas fa-sync-alt"></i> تحديث روابط السوشيال</button>
+                </form>
+                <div class="social-preview-row" id="social-preview"></div>
+            </div>
+
+            <!-- Site Settings -->
+            
+      </div>
+
+      <!-- ── SET ──────────────────────── -->
+      <div id="pg-set" class="adm-pg">
+        <div id="admin-set" class="admin-section">
+                <form onsubmit="saveSettings(event)">
+                    <h3 class="section-title"><i class="fas fa-id-card"></i> إعدادات الموقع</h3>
+                    <div class="admin-grid-2">
+                        <div class="form-group">
+                            <label>رابط الشعار Logo (URL أو اسم نصي)</label>
+                            <input type="text" id="set-logo" class="form-control" placeholder="https://... أو اسم الموقع">
+                        </div>
+                        <div class="form-group">
+                            <label>رقم واتساب الطلبات (بدون + أو مسافات)</label>
+                            <input type="text" id="set-wa" class="form-control" placeholder="201012345678">
+                        </div>
+                    </div>
+                    <div class="admin-grid-2" style="margin-top:16px;">
+                        <div class="form-group">
+                            <label><i class="fas fa-bolt" style="color:#6c3483;"></i> رقم InstaPay</label>
+                            <input type="text" id="set-instapay" class="form-control" placeholder="01xxxxxxxxx">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-mobile-alt" style="color:#e60000;"></i> رقم Vodafone Cash</label>
+                            <input type="text" id="set-vodafone" class="form-control" placeholder="01xxxxxxxxx">
+                        </div>
+                    </div>
+
+                    <!-- API Key -->
+                    <div class="form-group" style="margin-top:16px;">
+                        <label style="display:flex;align-items:center;gap:7px;font-weight:800;">
+                            <i class="fas fa-key" style="color:var(--gold);"></i>
+                            Anthropic API Key
+                            <span style="font-size:.68rem;color:#aaa;font-weight:400;">(للذكاء الاصطناعي والترجمة)</span>
+                        </label>
+                        <div style="position:relative;">
+                            <input type="password" id="set-apikey" class="form-control"
+                                placeholder="sk-ant-api03-..."
+                                autocomplete="new-password">
+                            <button type="button"
+                                onclick="var i=document.getElementById('set-apikey');i.type=i.type==='password'?'text':'password';"
+                                style="position:absolute;left:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#888;">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div id="apikey-status" style="font-size:.72rem;margin-top:5px;color:#22c55e;"></div>
+                    </div>
+
+                    <button type="submit" class="btn-save"><i class="fas fa-sync-alt"></i> تحديث الإعدادات</button>
+                    <button type="button" class="btn-save" style="background:linear-gradient(135deg,#f59e0b,#d97706);margin-top:10px;" onclick="forceSyncToFirebase()">
+                        <i class="fas fa-cloud-upload-alt"></i> مزامنة كل البيانات مع Firebase الآن
+                    </button>
+                    <!-- Biometric Setup -->
+                    <div style="margin-top:16px;border-top:2px dashed #eee;padding-top:16px;">
+                        <h4 style="color:var(--dark-blue);margin-bottom:8px;"><i class="fas fa-fingerprint" style="color:var(--primary-blue);"></i> البصمة — دخول الأدمن</h4>
+                        <p style="font-size:.78rem;color:#666;margin-bottom:10px;">سجّل بصمتك لتتمكن من الدخول بدون كلمة مرور في المرة القادمة.</p>
+                        <button id="admin-bio-btn" onclick="registerBiometric()" class="btn-save" style="background:linear-gradient(135deg,#1a4fff,#0033cc);">
+                            <i class="fas fa-fingerprint"></i> تسجيل البصمة
+                        </button>
+                    </div>
+                    <!-- Additional Payment Settings -->
+                    <div style="margin-top:16px;border-top:2px dashed #eee;padding-top:16px;">
+                        <h4 style="color:var(--dark-blue);margin-bottom:12px;"><i class="fab fa-paypal" style="color:#003087;"></i> PayPal / Payoneer / Crypto</h4>
+                        <div class="form-group">
+                            <label><i class="fab fa-paypal"></i> رابط PayPal.me</label>
+                            <input type="url" id="set-paypal" class="form-control" placeholder="https://paypal.me/yourusername">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fab fa-bitcoin" style="color:#f7931a;"></i> عنوان Bitcoin Wallet</label>
+                            <input type="text" id="set-bitcoin" class="form-control" placeholder="bc1q..." style="font-family:monospace;font-size:.8rem;">
+                        </div>
+                    </div>
+                    <!-- Firebase Setup -->
+                    <div style="margin-top:24px;border-top:2px dashed #eee;padding-top:20px;">
+                        <h4 style="color:var(--dark-blue);margin-bottom:4px;">
+                            <i class="fas fa-fire" style="color:#f97316;"></i> Firebase — قاعدة البيانات السحابية
+                        </h4>
+                        <p style="font-size:.8rem;color:var(--text-gray);margin-bottom:14px;">
+                            أضف إعدادات Firebase عشان بياناتك تتزامن مع كل الزوار • 
+                            <a href="https://console.firebase.google.com" target="_blank" rel="noopener" style="color:var(--primary-blue);">اعمل مشروع مجاني هنا</a>
+                        </p>
+                        <div id="fb-config-status" style="padding:10px 14px;border-radius:10px;font-size:.82rem;font-weight:700;margin-bottom:12px;
+                             background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;">
+                            <i class="fas fa-circle" style="font-size:.5rem;margin-left:5px;color:#f59e0b;"></i>
+                            وضع محلي — Firebase غير مُفعَّل بعد
+                        </div>
+                        <textarea id="fb-config-input" class="form-control"
+                            style="font-family:monospace;font-size:.78rem;direction:ltr;height:130px;"
+                            placeholder='الصق هنا config من Firebase Console:&#10;{&#10;  "apiKey": "...",&#10;  "authDomain": "...",&#10;  "databaseURL": "...",&#10;  ...&#10;}'></textarea>
+                        <button class="btn-save" style="margin-top:10px;background:linear-gradient(135deg,#f97316,#ea580c);"
+                                onclick="applyFirebaseConfig()">
+                            <i class="fas fa-fire"></i> تفعيل Firebase
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+ 
+            <!-- Full Sidebar Control -->
+            
+      </div>
+
+      <!-- ── LINKS ──────────────────────── -->
+      <div id="pg-links" class="adm-pg">
+        <div id="admin-links" class="admin-section">
+          <h3 class="section-title"><i class="fas fa-bars"></i> إدارة القائمة</h3>
+          
+        <!-- ── Sidebar Links Editor ── -->
+        <div class="adm-card2" style="padding:0;overflow:hidden;margin-bottom:16px;">
+          <div style="padding:16px 20px;border-bottom:1px solid var(--abo,rgba(255,255,255,.07));">
+            <strong style="color:var(--at,#e8eeff);font-size:.88rem;"><i class="fas fa-list-ul" style="color:var(--abl,#3d7aff);margin-left:7px;"></i>عناصر القائمة الجانبية</strong>
+          </div>
+          <div style="padding:16px 20px;">
+            <!-- Add new link -->
+            <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:10px;margin-bottom:14px;" id="new-link-form">
+              <input type="text" id="new-link-label" class="form-control" placeholder="نص الرابط (مثال: تواصل معنا)">
+              <input type="text" id="new-link-url" class="form-control" placeholder="الرابط أو # للقائمة" dir="ltr">
+              <button class="btn-save" onclick="addSidebarLink()" style="white-space:nowrap;"><i class="fas fa-plus"></i> إضافة</button>
+            </div>
+            <!-- List of links -->
+            <div id="sidebar-links-list" style="font-size:.84rem;"></div>
+            <p style="font-size:.72rem;color:var(--adm-muted,#6b7a99);margin-top:8px;"><i class="fas fa-info-circle"></i> اسحب العناصر لتغيير الترتيب · تظهر في أسفل القائمة الجانبية</p>
+          </div>
+        </div>
+
+        </div>
+      <!-- ── REVS ──────────────────────── -->
+      <div id="pg-revs" class="adm-pg">
+        <div class="admin-section">
+          <h3 class="section-title"><i class="fas fa-star"></i> إدارة التقييمات</h3>
+          <p style="font-size:.8rem;color:var(--adm-muted);margin-bottom:16px;">تقييمات العملاء على المنتجات — يمكن الموافقة عليها أو حذفها.</p>
+          <div id="revs-admin-content">
+            <p style="text-align:center;padding:30px;color:var(--adm-muted);">لا توجد تقييمات بعد</p>
+          </div>
+        </div>
+      </div>
+      
+      <div id="pg-channel" class="adm-pg">
+        <div class="admin-section">
+          <h3 class="section-title"><i class="fab fa-youtube" style="color:#ef4444;"></i> MARASSiA Channel</h3>
+
+          <div class="adm-card2" style="padding:18px;margin-bottom:18px;">
+            <div style="font-size:.82rem;font-weight:800;color:var(--at);margin-bottom:12px;"><i class="fas fa-plus-circle" style="color:#ef4444;margin-left:6px;"></i>إضافة فيديو</div>
+            <form onsubmit="saveChannelVideo(event)">
+              <input type="hidden" id="ch-edit-idx" value="">
+              <div class="admin-grid-2">
+                <div class="form-group"><label class="adm-label">عنوان الفيديو *</label><input type="text" id="ch-title" class="form-control" required placeholder="مثال: أفضل منتجات 2026"></div>
+                <div class="form-group"><label class="adm-label">رابط اليوتيوب *</label><input type="text" id="ch-url" class="form-control" required dir="ltr" placeholder="https://youtube.com/..."></div>
+              </div>
+              <div class="form-group"><label class="adm-label">وصف مختصر</label><input type="text" id="ch-desc" class="form-control" placeholder="وصف الفيديو..."></div>
+              <button type="submit" class="btn-save"><i class="fas fa-plus"></i> إضافة فيديو</button>
+            </form>
+          </div>
+
+          <div id="ch-admin-list">
+            <p style="text-align:center;padding:20px;color:var(--adm-muted);">لا توجد فيديوهات بعد</p>
+          </div>
+        </div>
+      </div>
+      
+      <div id="pg-orders" class="adm-pg">
+        <div class="admin-section">
+          <h3 class="section-title"><i class="fas fa-receipt"></i> إدارة الطلبات</h3>
+
+          <div id="orders-stats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:18px;"></div>
+
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center;">
+            <select id="order-filter-status" class="form-control" style="max-width:160px;" onchange="renderOrdersAdmin()">
+              <option value="">كل الطلبات</option>
+              <option value="pending">قيد الانتظار</option>
+              <option value="confirmed">مؤكد</option>
+              <option value="shipped">تم الشحن</option>
+              <option value="delivered">تم التسليم</option>
+              <option value="cancelled">ملغي</option>
+              <option value="paid">مدفوع</option>
+            </select>
+            <button onclick="exportOrdersCSV()" style="background:rgba(34,197,94,.1);color:#22c55e;border:1px solid rgba(34,197,94,.2);border-radius:8px;padding:9px 14px;cursor:pointer;font-family:Cairo,sans-serif;font-size:.78rem;font-weight:800;">
+              <i class="fas fa-file-csv"></i> تصدير CSV
+            </button>
+          </div>
+
+          <div class="data-table-wrapper">
+            <table class="data-table" id="orders-admin-list">
+              <tr><td colspan="6" style="text-align:center;padding:30px;color:var(--adm-muted);">لا توجد طلبات بعد</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+      
+      <div id="pg-users" class="adm-pg">
+        <div class="admin-section">
+          <h3 class="section-title"><i class="fas fa-users"></i> إدارة المستخدمين</h3>
+
+          <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+            <button onclick="loadRegisteredUsers()" class="btn-save" style="padding:9px 16px;background:rgba(61,122,255,.15);border:1px solid rgba(61,122,255,.25);">
+              <i class="fas fa-sync"></i> تحديث قائمة المستخدمين
+            </button>
+          </div>
+
+          <div id="users-stats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:16px;"></div>
+
+          <div class="data-table-wrapper">
+            <table class="data-table" id="users-admin-list">
+              <tr><td colspan="4" style="text-align:center;padding:30px;color:var(--adm-muted);">اضغط تحديث للتحميل</td></tr>
+            </table>
+          </div>
+        
+      <!-- CROSSROADS -->
+      <div id="pg-crossroads" class="adm-pg">
+        <div class="admin-section">
+          <h3 class="section-title"><i class="fas fa-th-large"></i> إدارة الواجهات</h3>
+          <div id="crossroads-admin-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:12px;margin-bottom:18px;"></div>
+          <div class="adm-card2" style="padding:14px;text-align:center;">
+            <p style="font-size:.8rem;color:var(--adm-muted);">🟢 مفعّل — يظهر للزوار | ⏳ قريباً — يظهر بشارة</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- MEDICAL -->
+      <div id="pg-medical" class="adm-pg">
+        <div class="admin-section">
+          <h3 class="section-title"><i class="fas fa-pills" style="color:#ef4444;"></i> إدارة الطريق الطبي</h3>
+          <div id="med-admin-stats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:18px;"></div>
+          <div class="adm-card2" style="padding:18px;margin-bottom:14px;">
+            <div style="font-size:.82rem;font-weight:800;color:var(--at);margin-bottom:10px;"><i class="fas fa-search" style="color:#3b82f6;margin-left:6px;"></i>بحث في المواد الفعالة</div>
+            <input type="text" id="pharma-admin-search" class="form-control" placeholder="اسم المادة عربي أو إنجليزي..." oninput="_searchPharmaAdmin(this.value)" style="margin-bottom:10px;">
+            <div id="pharma-admin-cats" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;"></div>
+            <div id="pharma-admin-list"></div>
+          </div>
+          <div class="adm-card2" style="padding:16px;">
+            <div style="font-size:.82rem;font-weight:800;color:var(--at);margin-bottom:12px;"><i class="fas fa-cog" style="color:#d4af37;margin-left:6px;"></i>إعدادات</div>
+            <div class="form-group"><label class="adm-label">إخلاء مسؤولية (عربي)</label><textarea id="med-disclaimer-ar" class="form-control" rows="2"></textarea></div>
+            <div class="form-group"><label class="adm-label">Disclaimer (EN)</label><textarea id="med-disclaimer-en" class="form-control" rows="2"></textarea></div>
+            <button onclick="saveMedicalSettings()" class="btn-save"><i class="fas fa-save"></i> حفظ</button>
+          </div>
+        </div>
+      </div></div>
+      </div>
+      
+      <div id="pg-ai" class="adm-pg">
+        <div id="admin-ai" class="admin-section">
+          <h3 class="section-title"><i class="fas fa-robot" style="color:var(--ag);"></i> AI & API الإعدادات</h3>
+
+          <!-- Status -->
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;padding:12px 16px;background:var(--adm-card,#161928);border:1px solid var(--abo);border-radius:12px;">
+            <span id="ai-key-dot" style="width:10px;height:10px;border-radius:50%;background:#6b7a99;flex-shrink:0;"></span>
+            <span id="ai-key-status" style="font-size:.82rem;color:var(--adm-muted,#6b7a99);">جارٍ التحقق من الـ API Key...</span>
+          </div>
+
+          <!-- API Key -->
+          <div class="adm-card2" style="padding:18px;margin-bottom:16px;">
+            <div style="font-size:.82rem;font-weight:800;color:var(--at);margin-bottom:12px;"><i class="fas fa-key" style="color:#d4af37;margin-left:6px;"></i>مفتاح Gemini API</div>
+            <form onsubmit="saveAPIKeys(event)">
+              <div class="form-group">
+                <input type="password" id="ai-apikey-input" class="form-control" dir="ltr" placeholder="AIza...">
+                <p style="font-size:.7rem;color:var(--adm-muted);margin-top:4px;">احصل عليه من <a href="https://makersuite.google.com" target="_blank" style="color:#3d7aff;">Google AI Studio</a></p>
+              </div>
+              <button type="submit" class="btn-save"><i class="fas fa-save"></i> حفظ المفتاح</button>
+            </form>
+          </div>
+
+          <!-- Settings -->
+          <div class="adm-card2" style="padding:18px;margin-bottom:16px;">
+            <div style="font-size:.82rem;font-weight:800;color:var(--at);margin-bottom:12px;"><i class="fas fa-sliders-h" style="color:#3d7aff;margin-left:6px;"></i>إعدادات المساعد</div>
+            <div class="form-group">
+              <label class="adm-label">رسالة النظام (System Prompt)</label>
+              <textarea id="ai-system-prompt" class="form-control" rows="3" placeholder="أنت مساعد MARASSiA الذكي..."></textarea>
+            </div>
+            <div class="admin-grid-2">
+              <div class="form-group">
+                <label class="adm-label">وضع الافتراضي</label>
+                <select id="ai-default-mode" class="form-control">
+                  <option value="general">عام</option>
+                  <option value="products">منتجات</option>
+                  <option value="support">دعم</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="adm-label">رسالة الترحيب</label>
+                <input type="text" id="ai-greeting" class="form-control" placeholder="مرحباً! كيف يمكنني مساعدتك؟">
+              </div>
+            </div>
+            <button onclick="saveAISettings()" class="btn-save"><i class="fas fa-save"></i> حفظ الإعدادات</button>
+          </div>
+
+          <!-- Stats -->
+          <div id="ai-stats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:16px;"></div>
+
+          <!-- Test -->
+          <div class="adm-card2" style="padding:18px;">
+            <div style="font-size:.82rem;font-weight:800;color:var(--at);margin-bottom:12px;"><i class="fas fa-vial" style="color:#22c55e;margin-left:6px;"></i>اختبار AI</div>
+            <div style="display:flex;gap:8px;">
+              <input type="text" id="ai-test-input" class="form-control" placeholder="اكتب رسالة اختبارية...">
+              <button onclick="testAI()" style="background:linear-gradient(135deg,#7c3aed,#3d7aff);border:none;color:#fff;border-radius:9px;padding:9px 16px;cursor:pointer;font-family:Cairo,sans-serif;font-size:.78rem;font-weight:800;white-space:nowrap;flex-shrink:0;"><i class="fas fa-paper-plane"></i> اختبار</button>
+            </div>
+            <div id="ai-test-result" style="margin-top:12px;padding:12px;background:rgba(255,255,255,.04);border-radius:10px;font-size:.8rem;color:var(--at);display:none;min-height:40px;"></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /adm-body -->
+  </div><!-- /adm-dash -->
+
+</div><!-- /app-root -->
+
+<script>
+
+/* ═══════════════════════════════════════════════════════
+   MARASSiA Admin Panel — Inline Script
+   All admin functions in one place
+═══════════════════════════════════════════════════════ */
+
+'use strict';
+
+/* ── Constants ──────────────────────────────────────── */
+var SEC_META = {
+  home:       { t:'نظرة عامة',       s:'إحصائيات المنصة' },
+  prod:       { t:'المنتجات',         s:'إضافة وتعديل المنتجات' },
+  blog:       { t:'المدونة',          s:'إدارة المقالات' },
+  hero:       { t:'Hero Banner',      s:'تخصيص الواجهة الرئيسية' },
+  cat:        { t:'الأقسام',          s:'إدارة أقسام المتجر' },
+  about:      { t:'الصفحات',          s:'من نحن والصفحات القانونية' },
+  social:     { t:'السوشيال',         s:'روابط التواصل الاجتماعي' },
+  set:        { t:'الإعدادات',        s:'الإعدادات العامة' },
+  links:      { t:'القائمة',          s:'روابط الشريط الجانبي' },
+  revs:       { t:'التقييمات',        s:'إدارة تقييمات العملاء' },
+  channel:    { t:'القناة',           s:'MARASSiA Channel' },
+  orders:     { t:'الطلبات',          s:'سجلات الطلبات' },
+  users:      { t:'المستخدمون',       s:'إدارة حسابات العملاء' },
+  ai:         { t:'AI & API',         s:'إعدادات المساعد الذكي' },
+  crossroads: { t:'الواجهات',         s:'إدارة مسارات Crossroads' },
+  medical:    { t:'الطب والصيدلة',    s:'إدارة PHARMA_DB' },
+};
+
+/* ── Sidebar toggle ──────────────────────────────────── */
+function openSb()  { var sb=document.getElementById('adm-sb'); if(sb) sb.classList.add('open'); }
+function closeSb() { var sb=document.getElementById('adm-sb'); if(sb) sb.classList.remove('open'); }
+function toggleSb(){ var sb=document.getElementById('adm-sb'); if(sb) sb.classList.toggle('open'); }
+
+/* ── Section navigation ──────────────────────────────── */
+function goSec(id, btn) {
+  // 1. Hide all sections, show requested one
+  document.querySelectorAll('.adm-pg').forEach(function(el){ el.classList.remove('show'); });
+  var pg = document.getElementById('pg-' + id);
+  if (pg) {
+    pg.classList.add('show');
+    pg.querySelectorAll('.admin-section').forEach(function(el){ el.style.display = 'block'; });
+  }
+
+  // 2. Update sidebar active state
+  document.querySelectorAll('.sb-btn').forEach(function(b){ b.classList.remove('on'); });
+  if (btn) btn.classList.add('on');
+
+  // 3. Update topbar title
+  var meta = SEC_META[id] || { t:id, s:'' };
+  var tt = document.getElementById('top-title'); if(tt) tt.textContent = meta.t;
+  var ts = document.getElementById('top-sub');   if(ts) ts.textContent = meta.s;
+
+  // 4. Section-specific data loading
+  var delay = 100;
+  var runs = {
+    prod:       function(){ if(typeof updateAdminUI==='function') updateAdminUI(); },
+    cat:        function(){ if(typeof updateAdminUI==='function') updateAdminUI(); },
+    blog:       function(){ if(typeof updateAdminUI==='function') updateAdminUI(); },
+    hero:       function(){ if(typeof updateAdminUI==='function') updateAdminUI(); },
+    social:     function(){ if(typeof updateAdminUI==='function') updateAdminUI(); },
+    set:        function(){ if(typeof updateAdminUI==='function') updateAdminUI(); },
+    home:       function(){ if(typeof updateAdminUI==='function') updateAdminUI(); _updateStats(); },
+    about:      function(){ if(typeof updateAdminUI==='function') updateAdminUI(); },
+    users:      function(){ if(typeof loadRegisteredUsers==='function') loadRegisteredUsers(); },
+    orders:     function(){ if(typeof renderOrdersAdmin==='function') renderOrdersAdmin(); },
+    revs:       function(){ if(typeof renderReviewsAdmin==='function') renderReviewsAdmin(); },
+    ai:         function(){ if(typeof renderAIAdminTab==='function') renderAIAdminTab(); },
+    channel:    function(){ if(typeof refreshChannelAdminList==='function') refreshChannelAdminList(); },
+    links:      function(){ if(typeof renderSidebarLinksAdmin==='function') renderSidebarLinksAdmin(); },
+    crossroads: function(){ if(typeof renderCrossroadsAdmin==='function') renderCrossroadsAdmin(); },
+    medical:    function(){ _renderMedicalAdmin(); },
+  };
+  if (runs[id]) setTimeout(runs[id], delay);
+
+  closeSb();
+  _updateStats();
+}
+
+/* ── Stats ───────────────────────────────────────────── */
+function _updateStats() {
+  if (typeof db === 'undefined') return;
+  var np = (db.products   || []).length;
+  var no = (db.orders     || []).length;
+  var nc = (db.categories || []).length;
+  var nb = (db.blogs      || []).length;
+  var nr = 0;
+  if (db.reviews) {
+    Object.values(db.reviews).forEach(function(rv){
+      if (rv && typeof rv === 'object') nr += Object.keys(rv).length;
+    });
+  }
+  function _s(id, v){ var el=document.getElementById(id); if(el) el.textContent=v; }
+  _s('st-p', np); _s('nb-p', np);
+  _s('st-o', no); _s('nb-o', no);
+  _s('st-r', nr);
+  _s('ov-c', nc);
+  _s('ov-b', nb);
+}
+
+/* ── Launch dashboard after login ───────────────────── */
+function _launchDashboard(user) {
+  document.getElementById('adm-auth').style.display = 'none';
+  var dash = document.getElementById('adm-dash');
+  dash.classList.add('show');
+  var em = document.getElementById('sb-email'); if(em) em.textContent = user.email;
+
+  // Show default (home) section active
+  var pgHome = document.getElementById('pg-home');
+  if (pgHome) pgHome.classList.add('show');
+  var homeBtn = document.querySelector('.sb-btn[data-sec="home"]');
+  if (homeBtn) homeBtn.classList.add('on');
+
+  // Load data
+  if (typeof loadDb === 'function') loadDb();
+
+  // Populate UI immediately from localStorage
+  setTimeout(function(){
+    if (typeof updateAdminUI === 'function') updateAdminUI();
+    _updateStats();
+  }, 150);
+
+  // Start Firebase sync — will call updateAdminUI again when data arrives
+  setTimeout(function(){
+    if (typeof _startFirebaseSync === 'function') _startFirebaseSync();
+  }, 300);
+
+  // Periodic stats refresh
+  setInterval(_updateStats, 8000);
+}
+
+/* ── Firebase sync callback — update admin when data changes ── */
+function _onDbChange() {
+  if (typeof updateAdminUI === 'function') updateAdminUI();
+  _updateStats();
+}
+
+/* ── Medical admin ───────────────────────────────────── */
+function _renderMedicalAdmin() {
+  // Stats
+  var statsEl = document.getElementById('med-admin-stats');
+  if (statsEl && typeof PHARMA_DB !== 'undefined') {
+    var total = Object.values(PHARMA_DB).reduce(function(s,v){return s+v.length;}, 0);
+    var cats  = Object.keys(PHARMA_DB).length;
+    var meds  = (db.products||[]).filter(function(p){return (p.category||'').match(/طب|دواء/);}).length;
+    statsEl.innerHTML = [
+      {l:'مادة فعالة', v:total, c:'#3b82f6'},
+      {l:'تصنيف',      v:cats,  c:'#22c55e'},
+      {l:'منتج طبي',   v:meds,  c:'#f59e0b'},
+    ].map(function(s){
+      return '<div style="background:var(--adm-card,#161928);border:1px solid var(--abo);border-radius:12px;padding:14px;text-align:center;">'
+        +'<div style="font-size:1.6rem;font-weight:900;color:'+s.c+'">'+s.v+'</div>'
+        +'<div style="font-size:.7rem;color:var(--adm-muted);">'+s.l+'</div>'
+        +'</div>';
+    }).join('');
+  }
+
+  // Category pills
+  var catsEl = document.getElementById('pharma-admin-cats');
+  if (catsEl && typeof PHARMA_DB !== 'undefined') {
+    catsEl.innerHTML = Object.keys(PHARMA_DB).map(function(cat){
+      return '<button style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--adm-muted);border-radius:14px;padding:4px 11px;cursor:pointer;font-family:Cairo,sans-serif;font-size:.75rem;" '
+        +'onclick="_showPharmaAdminCat(\''+cat.replace(/'/g,"\\'")+'\')" >'+cat+'</button>';
+    }).join('');
+  }
+
+  // Medical settings
+  var dar = document.getElementById('med-disclaimer-ar');
+  var den = document.getElementById('med-disclaimer-en');
+  if (dar && db.settings) dar.value = db.settings.medDiscAr || '';
+  if (den && db.settings) den.value = db.settings.medDiscEn || '';
+}
+
+function _showPharmaAdminCat(cat) {
+  var el = document.getElementById('pharma-admin-list');
+  if (!el || typeof PHARMA_DB === 'undefined') return;
+  var items = PHARMA_DB[cat] || [];
+  if (!items.length) { el.innerHTML='<p style="color:var(--adm-muted);padding:14px;text-align:center;">لا توجد مواد</p>'; return; }
+  el.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px;">'
+    + items.map(function(d){
+        return '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:11px;">'
+          +'<div style="font-weight:800;font-size:.83rem;color:var(--at);">'+d.name+'</div>'
+          +'<div style="font-size:.7rem;color:var(--adm-muted);margin-bottom:3px;">'+( d.en||'')+'</div>'
+          +'<div style="font-size:.75rem;color:rgba(255,255,255,.55);">'+( d.use||'')+'</div>'
+          +'</div>';
+      }).join('')
+    + '</div>';
+}
+
+function _searchPharmaAdmin(q) {
+  var el = document.getElementById('pharma-admin-list');
+  if (!el || typeof PHARMA_DB === 'undefined') return;
+  if (!q || q.length < 2) { el.innerHTML=''; return; }
+  q = q.toLowerCase();
+  var results = [];
+  Object.keys(PHARMA_DB).forEach(function(c){
+    PHARMA_DB[c].forEach(function(d){
+      if (d.name.includes(q) || (d.en||'').toLowerCase().includes(q) || (d.use||'').includes(q))
+        results.push(d);
+    });
+  });
+  if (!results.length) { el.innerHTML='<p style="color:var(--adm-muted);text-align:center;padding:14px;">لا نتائج</p>'; return; }
+  el.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px;">'
+    + results.slice(0,50).map(function(d){
+        return '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:11px;">'
+          +'<div style="font-weight:800;font-size:.83rem;color:var(--at);">'+d.name+'</div>'
+          +'<div style="font-size:.7rem;color:var(--adm-muted);">'+( d.en||'')+'</div>'
+          +'<div style="font-size:.75rem;color:rgba(255,255,255,.55);">'+( d.use||'')+'</div>'
+          +'</div>';
+      }).join('')
+    + (results.length>50 ? '<p style="text-align:center;font-size:.72rem;color:var(--adm-muted);padding:8px;">أول 50 نتيجة</p>' : '')
+    + '</div>';
+}
+
+function saveMedicalSettings() {
+  var ar = (document.getElementById('med-disclaimer-ar')||{value:''}).value;
+  var en = (document.getElementById('med-disclaimer-en')||{value:''}).value;
+  if (!db.settings) db.settings = {};
+  db.settings.medDiscAr = ar;
+  db.settings.medDiscEn = en;
+  if (typeof saveDb === 'function') saveDb();
+  if (typeof showToast === 'function') showToast('✅ تم حفظ إعدادات الطريق الطبي');
+}
+
+/* ── Crossroads admin render ─────────────────────────── */
+function renderCrossroadsAdmin() {
+  var el = document.getElementById('crossroads-admin-cards');
+  if (!el || typeof CROSSROADS_PATHS === 'undefined') return;
+  el.innerHTML = CROSSROADS_PATHS.map(function(p){
+    var active = !p.coming;
+    return '<div style="background:'+p.color+';border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:14px;position:relative;">'
+      +'<div style="position:absolute;top:8px;right:8px;">'
+      +(active
+        ? '<span style="background:rgba(34,197,94,.2);color:#22c55e;font-size:.62rem;padding:2px 8px;border-radius:10px;font-weight:800;">مفعّل</span>'
+        : '<span style="background:rgba(255,255,255,.1);color:rgba(255,255,255,.5);font-size:.62rem;padding:2px 8px;border-radius:10px;font-weight:800;">قريباً</span>')
+      +'</div>'
+      +'<div style="font-size:1.5rem;margin-bottom:8px;margin-top:20px;">'+p.emoji+'</div>'
+      +'<div style="font-weight:800;font-size:.85rem;color:#fff;">'+(p.labels && p.labels.ar ? p.labels.ar : p.id)+'</div>'
+      +'</div>';
+  }).join('');
+}
+
+/* ── AI settings ─────────────────────────────────────── */
+function saveAISettings() {
+  var sp = document.getElementById('ai-system-prompt');
+  var dm = document.getElementById('ai-default-mode');
+  var gr = document.getElementById('ai-greeting');
+  if (!db.settings) db.settings = {};
+  if (sp) db.settings.aiSystemPrompt = sp.value;
+  if (dm) db.settings.aiMode = dm.value;
+  if (gr) db.settings.aiGreeting = gr.value;
+  if (typeof saveDb === 'function') saveDb();
+  if (typeof showToast === 'function') showToast('✅ تم حفظ إعدادات AI');
+}
+
+function saveAPIKeys(e) {
+  if (e) e.preventDefault();
+  var keyEl = document.getElementById('ai-apikey-input');
+  if (!keyEl || !keyEl.value.trim()) {
+    if (typeof showToast === 'function') showToast('أدخل الـ API Key', 'error');
+    return;
+  }
+  var key = keyEl.value.trim();
+  if (!db.settings) db.settings = {};
+  db.settings.apiKey = key;
+  try { localStorage.setItem('marassia_api_key', key); } catch(ex) {}
+  if (typeof saveDb === 'function') saveDb();
+  if (typeof showToast === 'function') showToast('✅ تم حفظ مفتاح API');
+  if (typeof renderAIAdminTab === 'function') renderAIAdminTab();
+}
+
+function testAI() {
+  var inp = document.getElementById('ai-test-input');
+  var res = document.getElementById('ai-test-result');
+  if (!inp || !res || !inp.value.trim()) return;
+  res.style.display = 'block';
+  res.textContent = 'جارٍ الاختبار...';
+  var msg = inp.value.trim();
+  if (typeof _apiFetchGemini === 'function') {
+    _apiFetchGemini([{role:'user', content:msg}], function(err, reply){
+      res.textContent = err ? ('خطأ: '+(err.message||err)) : (reply || 'لا رد');
+    });
+  } else {
+    res.textContent = 'API غير مهيأ — أضف Gemini API Key أولاً';
+  }
+}
+
+/* ── Legal pages ─────────────────────────────────────── */
+function loadLegalPage(page) {
+  var el = document.getElementById('legal-page-text');
+  if (!el) return;
+  el.value = (db.settings && db.settings.legal && db.settings.legal[page]) || '';
+}
+
+function saveLegalPage(page) {
+  var el = document.getElementById('legal-page-text');
+  if (!el) return;
+  if (!db.settings) db.settings = {};
+  if (!db.settings.legal) db.settings.legal = {};
+  db.settings.legal[page] = el.value;
+  if (typeof saveDb === 'function') saveDb();
+  if (typeof showToast === 'function') showToast('✅ تم حفظ الصفحة القانونية');
+}
+
+/* ── Biometric login (admin) ─────────────────────────── */
+var _aBioId = localStorage.getItem('marassia_bio_id') || null;
+
+/* ── Auth init watcher (wait for app.js to load) ────── */
+var _admUIInterval = setInterval(function() {
+  if (typeof updateAdminUI === 'function' && typeof db !== 'undefined') {
+    clearInterval(_admUIInterval);
+  }
+}, 500);
+
+
+/* ── Admin Auth Functions ────────────────────────── */
+function admSignIn() {
+    var email = (document.getElementById('adm-email')||{value:''}).value.trim();
+    var pass  = (document.getElementById('adm-pass') ||{value:''}).value;
+    var errEl = document.getElementById('auth-err');
+    var btn   = document.getElementById('sign-btn');
+
+    if (!email || !pass) {
+        if(errEl) errEl.textContent = '⚠️ أدخل البريد وكلمة المرور';
+        return;
+    }
+    if(btn) { btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> جارٍ الدخول...'; }
+    if(errEl) errEl.textContent = '';
+
+    if (typeof firebase === 'undefined') {
+        if(errEl) errEl.textContent = '❌ Firebase غير متصل';
+        if(btn) { btn.disabled=false; btn.innerHTML='<i class="fas fa-sign-in-alt"></i>&nbsp; دخول لوحة التحكم'; }
+        return;
+    }
+    firebase.auth().signInWithEmailAndPassword(email, pass)
+        .then(function(uc) {
+            var ADMIN_EMAIL = 'marassia8@gmail.com';
+            if (uc.user.email !== ADMIN_EMAIL) {
+                firebase.auth().signOut();
+                if(errEl) errEl.textContent = '⛔ ليس لديك صلاحية الدخول';
+                if(btn) { btn.disabled=false; btn.innerHTML='<i class="fas fa-sign-in-alt"></i>&nbsp; دخول لوحة التحكم'; }
+                return;
+            }
+            _launchDashboard(uc.user);
+        })
+        .catch(function(err) {
+            var msgs = {
+                'auth/user-not-found':'البريد غير مسجّل',
+                'auth/wrong-password':'كلمة المرور غير صحيحة',
+                'auth/too-many-requests':'محاولات كثيرة — انتظر قليلاً',
+                'auth/invalid-email':'بريد إلكتروني غير صالح',
+                'auth/invalid-credential':'بيانات الدخول غير صحيحة',
+            };
+            if(errEl) errEl.textContent = '❌ ' + (msgs[err.code] || err.message);
+            if(btn) { btn.disabled=false; btn.innerHTML='<i class="fas fa-sign-in-alt"></i>&nbsp; دخول لوحة التحكم'; }
+        });
+}
+
+function admSignOut() {
+    if (typeof firebase !== 'undefined') firebase.auth().signOut();
+    document.getElementById('adm-dash').classList.remove('show');
+    document.getElementById('adm-auth').style.display = 'flex';
+    if(typeof showToast==='function') showToast('تم تسجيل الخروج بنجاح');
+}
+
+function admBioSignIn() {
+    var bioId = localStorage.getItem('marassia_bio_id');
+    if (!bioId) { alert('لم يتم تسجيل بصمة بعد — سجّل دخولاً بكلمة المرور أولاً'); return; }
+    if (!window.PublicKeyCredential) { alert('المتصفح لا يدعم البصمة'); return; }
+    // Biometric login via WebAuthn
+    showToast('جارٍ التحقق من البصمة...', 'info');
+    var storedEmail = localStorage.getItem('marassia_bio_email') || '';
+    var storedPass  = localStorage.getItem('marassia_bio_pass')  || '';
+    if (storedEmail && storedPass) {
+        document.getElementById('adm-email').value = storedEmail;
+        document.getElementById('adm-pass').value  = storedPass;
+        admSignIn();
+    } else {
+        alert('يرجى تسجيل الدخول مرة واحدة بكلمة المرور لتفعيل البصمة');
+    }
+}
+
+function admRegisterBio() {
+    var email = (document.getElementById('adm-email')||{value:''}).value.trim();
+    var pass  = (document.getElementById('adm-pass') ||{value:''}).value;
+    if (!email || !pass) { alert('أدخل البريد وكلمة المرور أولاً'); return; }
+    localStorage.setItem('marassia_bio_id',    'registered');
+    localStorage.setItem('marassia_bio_email', email);
+    localStorage.setItem('marassia_bio_pass',  pass);
+    var btn = document.getElementById('bio-btn');
+    if(btn) btn.style.display = 'flex';
+    if(typeof showToast==='function') showToast('✅ تم تسجيل البصمة — استخدمها في المرة القادمة');
+}
+
+function _safeAdminInit() {
+    if (typeof updateAdminUI === 'function') updateAdminUI();
+    _updateStats();
+}
+
+</script>
+</body>
+</html>
